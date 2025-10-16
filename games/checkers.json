@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "name": "Checkers (American Draughts)",
+    "description": "A classic two-player strategy board game.",
+    "version": "2.0",
+    "tags": ["abstract", "strategy", "board_game"]
+  },
+  "players": {
+    "count": { "min": 2, "max": 2 },
+    "roles": [
+      { "name": "Red", "attributes": { "home_row": 0, "direction": 1, "promotion_row": 7 } },
+      { "name": "Black", "attributes": { "home_row": 7, "direction": -1, "promotion_row": 0 } }
+    ]
+  },
+  "entity_schemas": {
+    "types": {
+      "Piece": {
+        "attributes": {
+          "owner": { "type": "player_ref" },
+          "rank": { "type": "string", "default": "man" }
+        }
+      }
+    }
+  },
+  "topology": {
+    "type": "discrete", 
+    "structure": "grid(8, 8)"
+  },
+  "state_schema": {
+    "global": {
+      "current_player": { "type": "player_ref", "initial": "player('Red')" }
+    }
+  },
+  "setup": {
+    "steps": [
+      {
+        "action": "spawn_entity", 
+        "schema": "Piece", 
+        "count": 12,
+        "set_attributes": { "owner": "player('Red')", "rank": "man" },
+        "at": [
+          "grid_nodes(1,0, 1,0)", "grid_nodes(3,0, 3,0)", "grid_nodes(5,0, 5,0)", "grid_nodes(7,0, 7,0)",
+          "grid_nodes(0,1, 0,1)", "grid_nodes(2,1, 2,1)", "grid_nodes(4,1, 4,1)", "grid_nodes(6,1, 6,1)",
+          "grid_nodes(1,2, 1,2)", "grid_nodes(3,2, 3,2)", "grid_nodes(5,2, 5,2)", "grid_nodes(7,2, 7,2)"
+        ]
+      },
+      {
+        "action": "spawn_entity", 
+        "schema": "Piece", 
+        "count": 12,
+        "set_attributes": { "owner": "player('Black')", "rank": "man" },
+        "at": [
+          "grid_nodes(0,5, 0,5)", "grid_nodes(2,5, 2,5)", "grid_nodes(4,5, 4,5)", "grid_nodes(6,5, 6,5)",
+          "grid_nodes(1,6, 1,6)", "grid_nodes(3,6, 3,6)", "grid_nodes(5,6, 5,6)", "grid_nodes(7,6, 7,6)",
+          "grid_nodes(0,7, 0,7)", "grid_nodes(2,7, 2,7)", "grid_nodes(4,7, 4,7)", "grid_nodes(6,7, 6,7)"
+        ]
+      }
+    ]
+  },
+  "interactions": {
+    "list": {
+      "man_move": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'man')",
+          "eq(board[target], null)",
+          "eq(abs(sub(target.x, start.x)), abs(sub(target.y, start.y)))",
+          "eq(abs(sub(target.x, start.x)), 1)",
+          "gt(mul(sub(target.y, start.y), entity.owner.direction), 0)"
+        ],
+        "effects": [
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)",
+          "if(eq(target.y, entity.owner.promotion_row), set(entity.rank, 'king'))"
+        ]
+      },
+      "king_move": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'king')",
+          "eq(board[target], null)",
+          "eq(abs(sub(target.x, start.x)), abs(sub(target.y, start.y)))",
+          "eq(abs(sub(target.x, start.x)), 1)"
+        ],
+        "effects": [
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)"
+        ]
+      },
+      "man_jump": {
+        "chainable": true,
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'man')",
+          "eq(board[target], null)",
+          "eq(abs(sub(target.x, start.x)), abs(sub(target.y, start.y)))",
+          "eq(abs(sub(target.x, start.x)), 2)",
+          "gt(mul(sub(target.y, start.y), entity.owner.direction), 0)",
+          "ne(board[mid_pos(start, target)], null)",
+          "ne(board[mid_pos(start, target)].owner, entity.owner)"
+        ],
+        "effects": [
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)",
+          "remove_entity(board[mid_pos(start, target)])",
+          "set(board[mid_pos(start, target)], null)",
+          "if(eq(target.y, entity.owner.promotion_row), set(entity.rank, 'king'))"
+        ]
+      },
+      "king_jump": {
+        "chainable": true,
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'king')",
+          "eq(board[target], null)",
+          "eq(abs(sub(target.x, start.x)), abs(sub(target.y, start.y)))",
+          "eq(abs(sub(target.x, start.x)), 2)",
+          "ne(board[mid_pos(start, target)], null)",
+          "ne(board[mid_pos(start, target)].owner, entity.owner)"
+        ],
+        "effects": [
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)",
+          "remove_entity(board[mid_pos(start, target)])",
+          "set(board[mid_pos(start, target)], null)"
+        ]
+      }
+    }
+  },
+  "game_flow": {
+    "time_model": "turn_based",
+    "phases": {
+      "main_turn": { 
+        "actors": "current_player", 
+        "allowed_actions": ["man_move", "king_move", "man_jump", "king_jump"]
+      }
+    },
+    "initial_phase": "main_turn"
+  },
+  "end_conditions": {
+    "conditions": [
+      {
+        "type": "victory",
+        "for": "player(p)", 
+        "condition": "eq(size(entities_of_player(opponent_of(p))), 0)"
+      },
+      {
+        "type": "victory",
+        "for": "player(p)",
+        "condition": "eq(size(get_all_legal_moves_for(opponent_of(p))), 0)"
+      }
+    ]
+  },
+  "presentation": {
+    "profiles": {
+      "ascii": {
+        "entity_assets": [
+          {
+            "conditions": "and(eq(entity.schema, 'Piece'), eq(entity.owner.name, 'Red'), eq(entity.rank, 'man'))",
+            "asset": "r"
+          },
+          {
+            "conditions": "and(eq(entity.schema, 'Piece'), eq(entity.owner.name, 'Red'), eq(entity.rank, 'king'))",
+            "asset": "R"
+          },
+          {
+            "conditions": "and(eq(entity.schema, 'Piece'), eq(entity.owner.name, 'Black'), eq(entity.rank, 'man'))",
+            "asset": "b"
+          },
+          {
+            "conditions": "and(eq(entity.schema, 'Piece'), eq(entity.owner.name, 'Black'), eq(entity.rank, 'king'))",
+            "asset": "B"
+          }
+        ],
+        "topology_assets": {
+          "empty_light_square": "  ",
+          "empty_dark_square": "::"
+        }
+      }
+    }
+  }
+}

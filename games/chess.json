@@ -1,0 +1,291 @@
+{
+  "metadata": {
+    "name": "Chess",
+    "description": "The classic game of chess with standard FIDE rules (without castling or en passant).",
+    "version": "1.0",
+    "tags": ["abstract", "strategy", "board_game", "chess"]
+  },
+  "players": {
+    "count": { "min": 2, "max": 2 },
+    "roles": [
+      { "name": "White", "attributes": { "home_row": 0, "pawn_direction": 1, "promotion_row": 7 } },
+      { "name": "Black", "attributes": { "home_row": 7, "pawn_direction": -1, "promotion_row": 0 } }
+    ]
+  },
+  "entity_schemas": {
+    "types": {
+      "Piece": {
+        "attributes": {
+          "owner": { "type": "player_ref" },
+          "rank": { "type": "string", "default": "pawn" }
+        }
+      }
+    }
+  },
+  "topology": {
+    "type": "discrete",
+    "structure": "grid(8, 8)"
+  },
+  "state_schema": {
+    "global": {
+      "current_player": { "type": "player_ref", "initial": "player('White')" }
+    }
+  },
+  "setup": {
+    "steps": [
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 8,
+        "set_attributes": { "owner": "player('White')", "rank": "pawn" },
+        "at": ["grid_nodes(0,1, 7,1)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 8,
+        "set_attributes": { "owner": "player('Black')", "rank": "pawn" },
+        "at": ["grid_nodes(0,6, 7,6)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 2,
+        "set_attributes": { "owner": "player('White')", "rank": "rook" },
+        "at": ["grid_nodes(0,0, 0,0)", "grid_nodes(7,0, 7,0)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 2,
+        "set_attributes": { "owner": "player('Black')", "rank": "rook" },
+        "at": ["grid_nodes(0,7, 0,7)", "grid_nodes(7,7, 7,7)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 2,
+        "set_attributes": { "owner": "player('White')", "rank": "knight" },
+        "at": ["grid_nodes(1,0, 1,0)", "grid_nodes(6,0, 6,0)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 2,
+        "set_attributes": { "owner": "player('Black')", "rank": "knight" },
+        "at": ["grid_nodes(1,7, 1,7)", "grid_nodes(6,7, 6,7)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 2,
+        "set_attributes": { "owner": "player('White')", "rank": "bishop" },
+        "at": ["grid_nodes(2,0, 2,0)", "grid_nodes(5,0, 5,0)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 2,
+        "set_attributes": { "owner": "player('Black')", "rank": "bishop" },
+        "at": ["grid_nodes(2,7, 2,7)", "grid_nodes(5,7, 5,7)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 1,
+        "set_attributes": { "owner": "player('White')", "rank": "queen" },
+        "at": ["grid_nodes(3,0, 3,0)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 1,
+        "set_attributes": { "owner": "player('Black')", "rank": "queen" },
+        "at": ["grid_nodes(3,7, 3,7)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 1,
+        "set_attributes": { "owner": "player('White')", "rank": "king" },
+        "at": ["grid_nodes(4,0, 4,0)"]
+      },
+      {
+        "action": "spawn_entity",
+        "schema": "Piece",
+        "count": 1,
+        "set_attributes": { "owner": "player('Black')", "rank": "king" },
+        "at": ["grid_nodes(4,7, 4,7)"]
+      }
+    ]
+  },
+  "interactions": {
+    "list": {
+      "pawn_move_one": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'pawn')",
+          "eq(board[target], null)",
+          "eq(target.x, start.x)",
+          "eq(sub(target.y, start.y), entity.owner.pawn_direction)"
+        ],
+        "effects": [
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)",
+          "if(eq(target.y, entity.owner.promotion_row), set(entity.rank, 'queen'))"
+        ]
+      },
+      "pawn_move_two": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'pawn')",
+          "eq(board[target], null)",
+          "eq(target.x, start.x)",
+          "eq(sub(target.y, start.y), mul(entity.owner.pawn_direction, 2))",
+          "or(eq(start.y, 1), eq(start.y, 6))"
+        ],
+        "effects": [
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)"
+        ]
+      },
+      "pawn_capture": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'pawn')",
+          "ne(board[target], null)",
+          "ne(board[target].owner, entity.owner)",
+          "eq(abs(sub(target.x, start.x)), 1)",
+          "eq(sub(target.y, start.y), entity.owner.pawn_direction)"
+        ],
+        "effects": [
+          "remove_entity(board[target])",
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)",
+          "if(eq(target.y, entity.owner.promotion_row), set(entity.rank, 'queen'))"
+        ]
+      },
+      "knight_move": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'knight')",
+          "or(eq(board[target], null), ne(board[target].owner, entity.owner))",
+          "or(and(eq(abs(sub(target.x, start.x)), 2), eq(abs(sub(target.y, start.y)), 1)), and(eq(abs(sub(target.x, start.x)), 1), eq(abs(sub(target.y, start.y)), 2)))"
+        ],
+        "effects": [
+          "if(ne(board[target], null), remove_entity(board[target]))",
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)"
+        ]
+      },
+      "king_move": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'king')",
+          "or(eq(board[target], null), ne(board[target].owner, entity.owner))",
+          "eq(abs(sub(target.x, start.x)), 1)",
+          "lt(abs(sub(target.y, start.y)), 2)",
+          "or(eq(target.x, start.x), eq(target.y, start.y), eq(abs(sub(target.x, start.x)), abs(sub(target.y, start.y))))"
+        ],
+        "effects": [
+          "if(ne(board[target], null), remove_entity(board[target]))",
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)"
+        ]
+      },
+      "rook_move": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'rook')",
+          "or(eq(board[target], null), ne(board[target].owner, entity.owner))",
+          "or(eq(target.x, start.x), eq(target.y, start.y))",
+          "path_clear(start, target)"
+        ],
+        "effects": [
+          "if(ne(board[target], null), remove_entity(board[target]))",
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)"
+        ]
+      },
+      "bishop_move": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'bishop')",
+          "or(eq(board[target], null), ne(board[target].owner, entity.owner))",
+          "eq(abs(sub(target.x, start.x)), abs(sub(target.y, start.y)))",
+          "path_clear(start, target)"
+        ],
+        "effects": [
+          "if(ne(board[target], null), remove_entity(board[target]))",
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)"
+        ]
+      },
+      "queen_move": {
+        "conditions": [
+          "eq(entity.owner, state.current_player)",
+          "eq(entity.rank, 'queen')",
+          "or(eq(board[target], null), ne(board[target].owner, entity.owner))",
+          "or(eq(target.x, start.x), eq(target.y, start.y), eq(abs(sub(target.x, start.x)), abs(sub(target.y, start.y))))",
+          "path_clear(start, target)"
+        ],
+        "effects": [
+          "if(ne(board[target], null), remove_entity(board[target]))",
+          "set(board[start], null)",
+          "set(board[target], entity)",
+          "set(entity.pos, target)"
+        ]
+      }
+    }
+  },
+  "game_flow": {
+    "time_model": "turn_based",
+    "phases": {
+      "main_turn": {
+        "actors": "current_player",
+        "allowed_actions": ["pawn_move_one", "pawn_move_two", "pawn_capture", "knight_move", "king_move", "rook_move", "bishop_move", "queen_move"]
+      }
+    },
+    "initial_phase": "main_turn"
+  },
+  "end_conditions": {
+    "conditions": [
+      {
+        "type": "victory",
+        "for": "player(p)",
+        "condition": "king_captured(opponent_of(p))"
+      }
+    ]
+  },
+  "presentation": {
+    "profiles": {
+      "ascii": {
+        "entity_assets": [
+          {"conditions": "and(eq(entity.rank, 'pawn'), eq(entity.owner.name, 'White'))", "asset": "P"},
+          {"conditions": "and(eq(entity.rank, 'pawn'), eq(entity.owner.name, 'Black'))", "asset": "p"},
+          {"conditions": "and(eq(entity.rank, 'rook'), eq(entity.owner.name, 'White'))", "asset": "R"},
+          {"conditions": "and(eq(entity.rank, 'rook'), eq(entity.owner.name, 'Black'))", "asset": "r"},
+          {"conditions": "and(eq(entity.rank, 'knight'), eq(entity.owner.name, 'White'))", "asset": "N"},
+          {"conditions": "and(eq(entity.rank, 'knight'), eq(entity.owner.name, 'Black'))", "asset": "n"},
+          {"conditions": "and(eq(entity.rank, 'bishop'), eq(entity.owner.name, 'White'))", "asset": "B"},
+          {"conditions": "and(eq(entity.rank, 'bishop'), eq(entity.owner.name, 'Black'))", "asset": "b"},
+          {"conditions": "and(eq(entity.rank, 'queen'), eq(entity.owner.name, 'White'))", "asset": "Q"},
+          {"conditions": "and(eq(entity.rank, 'queen'), eq(entity.owner.name, 'Black'))", "asset": "q"},
+          {"conditions": "and(eq(entity.rank, 'king'), eq(entity.owner.name, 'White'))", "asset": "K"},
+          {"conditions": "and(eq(entity.rank, 'king'), eq(entity.owner.name, 'Black'))", "asset": "k"}
+        ],
+        "topology_assets": {
+          "empty_light_square": "  ",
+          "empty_dark_square": "::"
+        }
+      }
+    }
+  }
+}
