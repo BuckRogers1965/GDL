@@ -16,13 +16,13 @@ Games are state machines where:
 
 ```bash
 # Play chess interactively
-python3 game.py chess.json
+python3 game.py games/chess.json
 
 # Play checkers with verbose debug output
-python3 game.py checkers.txt -v
+python3 game.py games/checkers.txt -v
 
 # Run a scripted game
-python3 game.py checkers.txt moves.txt
+python3 game.py games/checkers.txt saved_games/checker_moves.txt
 ```
 
 ## Features
@@ -34,6 +34,8 @@ python3 game.py checkers.txt moves.txt
 - ✅ **Symmetric rules** - One rule works for all players via player attributes
 - ✅ **Path validation** - Line-of-sight checking for sliding pieces
 - ✅ **Debug mode** - Verbose output shows rule evaluation step-by-step
+
+Now, there are features that need to be added to support all the features that games will eventually need, these will require code to allow these features to be tested.  And different presentation methods will need to be written and resources added to the game spec as a directory structure. 
 
 ## Game Controls
 
