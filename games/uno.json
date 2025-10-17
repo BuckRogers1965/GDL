@@ -1,0 +1,231 @@
+{
+  "metadata": {
+    "name": "UNO",
+    "description": "The classic card matching game",
+    "version": "1.0",
+    "tags": ["card_game", "family", "matching"]
+  },
+  "players": {
+    "count": { "min": 2, "max": 10 },
+    "dynamic_roles": true,
+    "roles": [
+      { "name": "Player", "attributes": {} }
+    ]
+  },
+  "entity_schemas": {
+    "types": {
+      "Card": {
+        "attributes": {
+          "color": { "type": "string" },
+          "rank": { "type": "string" },
+          "type": { "type": "string", "default": "number" }
+        }
+      }
+    }
+  },
+  "topology": {
+    "type": "zones",
+    "zones": {
+      "deck": { "type": "stack", "visible": false, "ordered": true },
+      "discard": { "type": "stack", "visible": true, "ordered": true },
+      "hand_Player1": { "type": "stack", "owner": "player('Player1')", "visible": false },
+      "hand_Player2": { "type": "stack", "owner": "player('Player2')", "visible": false },
+      "hand_Player3": { "type": "stack", "owner": "player('Player3')", "visible": false },
+      "hand_Player4": { "type": "stack", "owner": "player('Player4')", "visible": false },
+      "hand_Player5": { "type": "stack", "owner": "player('Player5')", "visible": false },
+      "hand_Player6": { "type": "stack", "owner": "player('Player6')", "visible": false },
+      "hand_Player7": { "type": "stack", "owner": "player('Player7')", "visible": false },
+      "hand_Player8": { "type": "stack", "owner": "player('Player8')", "visible": false },
+      "hand_Player9": { "type": "stack", "owner": "player('Player9')", "visible": false },
+      "hand_Player10": { "type": "stack", "owner": "player('Player10')", "visible": false }
+    }
+  },
+  "state_schema": {
+    "global": {
+      "current_player": { "type": "player_ref", "initial": "player('Player1')" },
+      "turn_direction": { "type": "int", "initial": 1 },
+      "skip_next": { "type": "bool", "initial": false }
+    }
+  },
+  "setup": {
+    "steps": [
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "0", "type": "number" }, "at": ["zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "1", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "2", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "3", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "4", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "5", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "6", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "7", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "8", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "9", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "DrawTwo", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "Skip", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "red", "rank": "Reverse", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "0", "type": "number" }, "at": ["zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "1", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "2", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "3", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "4", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "5", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "6", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "7", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "8", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "9", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "DrawTwo", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "Skip", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "yellow", "rank": "Reverse", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "0", "type": "number" }, "at": ["zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "1", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "2", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "3", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "4", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "5", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "6", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "7", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "8", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "9", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "DrawTwo", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "Skip", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "green", "rank": "Reverse", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "0", "type": "number" }, "at": ["zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "1", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "2", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "3", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "4", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "5", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "6", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "7", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "8", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "9", "type": "number" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "DrawTwo", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "Skip", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "blue", "rank": "Reverse", "type": "action" }, "at": ["zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "any", "rank": "Wild", "type": "wild" }, "at": ["zone('deck')", "zone('deck')", "zone('deck')", "zone('deck')"] },
+      { "action": "spawn_entity", "schema": "Card", "set_attributes": { "color": "any", "rank": "WildDrawFour", "type": "wild" }, "at": ["zone('deck')", "zone('deck')", "zone('deck')", "zone('deck')"] },
+      { "action": "shuffle_zone", "zone": "deck" },
+      { "action": "deal_cards", "from": "zone('deck')", "to": [ "zone('hand_Player1')", "zone('hand_Player2')", "zone('hand_Player3')", "zone('hand_Player4')", "zone('hand_Player5')", "zone('hand_Player6')", "zone('hand_Player7')", "zone('hand_Player8')", "zone('hand_Player9')", "zone('hand_Player10')" ], "count": 7 },
+      { "action": "move_card", "from": "zone('deck')", "to": "zone('discard')", "count": 1 }
+    ]
+  },
+  "interactions": {
+    "list": {
+      "draw_card": {
+        "conditions": [ "eq(player, state.current_player)" ],
+        "effects": [ "draw_cards(zone('deck'), hand_zone, 1)" ],
+        "end_turn": true
+      },
+      "play_number_card": {
+        "conditions": [
+          "eq(player, state.current_player)",
+          "gt(count(zone('discard').entities), 0)",
+          "eq(card.type, 'number')",
+          "or(eq(card.color, top_card(zone('discard')).color), and(eq(card.rank, top_card(zone('discard')).rank), eq(top_card(zone('discard')).type, 'number')), eq(top_card(zone('discard')).color, 'any'))"
+        ],
+        "effects": [
+          "move_to_zone(card, zone('discard'))"
+        ],
+        "end_turn": true
+      },
+      "play_skip_card": {
+        "conditions": [
+          "eq(player, state.current_player)",
+          "gt(count(zone('discard').entities), 0)",
+          "eq(card.rank, 'Skip')",
+          "or(eq(card.color, top_card(zone('discard')).color), eq(top_card(zone('discard')).rank, 'Skip'), eq(top_card(zone('discard')).color, 'any'))"
+        ],
+        "effects": [
+          "move_to_zone(card, zone('discard'))",
+          "set(state.skip_next, true)"
+        ],
+        "end_turn": true
+      },
+      "play_reverse_card": {
+        "conditions": [
+          "eq(player, state.current_player)",
+          "gt(count(zone('discard').entities), 0)",
+          "eq(card.rank, 'Reverse')",
+          "or(eq(card.color, top_card(zone('discard')).color), eq(top_card(zone('discard')).rank, 'Reverse'), eq(top_card(zone('discard')).color, 'any'))"
+        ],
+        "effects": [
+          "move_to_zone(card, zone('discard'))",
+          "set(state.turn_direction, mul(state.turn_direction, -1))"
+        ],
+        "end_turn": true
+      },
+      "play_draw_two_card": {
+        "conditions": [
+          "eq(player, state.current_player)",
+          "gt(count(zone('discard').entities), 0)",
+          "eq(card.rank, 'DrawTwo')",
+          "or(eq(card.color, top_card(zone('discard')).color), eq(top_card(zone('discard')).rank, 'DrawTwo'), eq(top_card(zone('discard')).color, 'any'))"
+        ],
+        "effects": [
+          "move_to_zone(card, zone('discard'))",
+          "draw_cards(zone('deck'), zone(concat('hand_', next_player(state.current_player, state.turn_direction).name)), 2)",
+          "set(state.skip_next, true)"
+        ],
+        "end_turn": true
+      },
+      "play_wild_card": {
+        "conditions": [
+          "eq(player, state.current_player)",
+          "eq(card.rank, 'Wild')"
+        ],
+        "effects": [ 
+          "move_to_zone(card, zone('discard'))"
+        ],
+        "end_turn": true
+      },
+      "play_wild_draw_four_card": {
+        "conditions": [
+          "eq(player, state.current_player)",
+          "eq(card.rank, 'WildDrawFour')"
+        ],
+        "effects": [ 
+          "move_to_zone(card, zone('discard'))",
+          "draw_cards(zone('deck'), zone(concat('hand_', next_player(state.current_player, state.turn_direction).name)), 4)",
+          "set(state.skip_next, true)"
+        ],
+        "end_turn": true
+      }
+    }
+  },
+  "game_flow": {
+    "time_model": "turn_based",
+    "phases": {
+      "main_turn": {
+        "actors": "current_player",
+        "allowed_actions": ["play_number_card", "play_skip_card", "play_reverse_card", "play_draw_two_card", "play_wild_card", "play_wild_draw_four_card", "draw_card"]
+      }
+    },
+    "initial_phase": "main_turn"
+  },
+  "presentation": {
+    "profiles": {
+      "ascii": {
+        "entity_assets": [
+          {"conditions": "and(eq(entity.color, 'red'), eq(entity.type, 'number'))", "asset": "[R-#]"},
+          {"conditions": "and(eq(entity.color, 'red'), eq(entity.rank, 'Skip'))", "asset": "[R-SKIP]"},
+          {"conditions": "and(eq(entity.color, 'red'), eq(entity.rank, 'Reverse'))", "asset": "[R-REV]"},
+          {"conditions": "and(eq(entity.color, 'red'), eq(entity.rank, 'DrawTwo'))", "asset": "[R-DR2]"},
+          {"conditions": "and(eq(entity.color, 'yellow'), eq(entity.type, 'number'))", "asset": "[Y-#]"},
+          {"conditions": "and(eq(entity.color, 'yellow'), eq(entity.rank, 'Skip'))", "asset": "[Y-SKIP]"},
+          {"conditions": "and(eq(entity.color, 'yellow'), eq(entity.rank, 'Reverse'))", "asset": "[Y-REV]"},
+          {"conditions": "and(eq(entity.color, 'yellow'), eq(entity.rank, 'DrawTwo'))", "asset": "[Y-DR2]"},
+          {"conditions": "and(eq(entity.color, 'green'), eq(entity.type, 'number'))", "asset": "[G-#]"},
+          {"conditions": "and(eq(entity.color, 'green'), eq(entity.rank, 'Skip'))", "asset": "[G-SKIP]"},
+          {"conditions": "and(eq(entity.color, 'green'), eq(entity.rank, 'Reverse'))", "asset": "[G-REV]"},
+          {"conditions": "and(eq(entity.color, 'green'), eq(entity.rank, 'DrawTwo'))", "asset": "[G-DR2]"},
+          {"conditions": "and(eq(entity.color, 'blue'), eq(entity.type, 'number'))", "asset": "[B-#]"},
+          {"conditions": "and(eq(entity.color, 'blue'), eq(entity.rank, 'Skip'))", "asset": "[B-SKIP]"},
+          {"conditions": "and(eq(entity.color, 'blue'), eq(entity.rank, 'Reverse'))", "asset": "[B-REV]"},
+          {"conditions": "and(eq(entity.color, 'blue'), eq(entity.rank, 'DrawTwo'))", "asset": "[B-DR2]"},
+          {"conditions": "eq(entity.rank, 'Wild')", "asset": "[WILD]"},
+          {"conditions": "eq(entity.rank, 'WildDrawFour')", "asset": "[W-DR4]"}
+        ],
+        "card_back": "[??]"
+      }
+    }
+  }
+}
